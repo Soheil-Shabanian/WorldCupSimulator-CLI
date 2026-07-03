@@ -1,3 +1,11 @@
+# worldcup_simulator.py
+
+# Soheil Shabanian
+# 404130833
+# Project name: World Cup Simulator
+# 1405/04/10
+
+
 import random
 import pandas as pd
 import numpy as np
@@ -340,7 +348,7 @@ class WorldCupSimulator:
         bracket_l = []
         i = 0
         for group in self.groups:
-            g = group.advance_teams() # (first_team, second_team)
+            g = group.advance_teams()
             if i % 2 == 0:
                 bracket_r.append(g[0])
             else:
@@ -349,14 +357,13 @@ class WorldCupSimulator:
 
         i = 0
         for group in self.groups:
-            g = group.advance_teams()  # (first_team, second_team)
+            g = group.advance_teams()
             if i % 2 == 0:
                 bracket_r.append(g[1])
             else:
                 bracket_l.append(g[0])
             i += 1
 
-            # print(f"{group.name}1: {g[0]} | {group.name}2: {g[1]}")
         for t1, t2 in zip(bracket_r, bracket_l):
             all_matches.append(Match(t1, t2, True))
 
@@ -540,7 +547,7 @@ def run_main():
             elif num == 5:
                 while True:
                     try:
-                        simulations = int(input("Number of simulations: "))
+                        simulations = int(input("[*] Number of simulations: "))
                         if simulations <= 0:
                             print("[-] Simulation count must be greater than zero.")
                             continue
