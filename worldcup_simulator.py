@@ -168,12 +168,9 @@ class Team:
                 winner = opponent
             else:
                 winner = "Draw"
-            # print(f"{self.name:^15} {goals_self:^2} | {goals_opponent:^3} {opponent.name:^15}")
-            # print('-'*50)
 
-        else: # final enter to 90 min
+        else:
             if goals_self == goals_opponent:
-                # print(f"{self.name} {goals_self} | {goals_opponent} {opponent.name} --> 90 min: draw *** entering to 30 min")
                 lambda_self *= 0.33
                 lambda_opponent *= 0.33
                 goals_self += np.random.poisson(lam=lambda_self)
@@ -182,8 +179,6 @@ class Team:
                     winner = opponent
 
                 elif goals_self == goals_opponent:
-                    # print(f"{self.name} {goals_self} | {goals_opponent} {opponent.name} --> 30 min: draw *** entering to 5 penalty")
-
                     p_self = 0.75 + (self.attack - opponent.defence) / 250
                     p_opponent = 0.75 + (opponent.attack - self.defence) / 250
                     for _ in range(5):
@@ -192,8 +187,7 @@ class Team:
                         if random.random() < p_opponent:
                             opponent.pens += 1
 
-                    if self.pens == opponent.pens: # enter to Sudden Death
-                        # print(f"{self.name} {p_goals_self} | {p_goals_opponent} {opponent.name} --> 5 round penalty: draw *** entering Sudden Death penalty")
+                    if self.pens == opponent.pens:
                         while True:
                             if random.random() < p_self:
                                 self.pens += 1
@@ -201,7 +195,6 @@ class Team:
                                 opponent.pens += 1
                             if self.pens != opponent.pens:
                                 winner = self if self.pens > opponent.pens else opponent
-                                # print(f"after Sudden Death penalty result: {self.name} {p_goals_self} | {p_goals_opponent} {opponent.name}")
                                 break
 
                     elif self.pens > opponent.pens:
