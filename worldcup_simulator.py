@@ -18,6 +18,10 @@ ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
 
 class Team:
+    """
+    a team has attack, defence, rank, goal, goals from opponent, name
+    the team class save this values for each team
+    """
     def __init__(self, name: str, attack: int, defence: int, rank: int):
         """
         Initialize a new team.
@@ -48,21 +52,21 @@ class Team:
     @property
     def goals_for(self):
         """
-        Return the total number of goals
+        Return the total number of team goals
         """
         return self.__goals_for
 
     @property
     def attack(self):
         """
-        Return the team attack rating
+        Return the team attack number
         """
         return self.__attack
 
     @attack.setter
     def attack(self, value):
         """
-        Set the team's attack rating
+        Set the team attack number
 
         Raises:
             ValueError: If the value is negative
@@ -73,34 +77,78 @@ class Team:
 
     @property
     def defence(self):
+        """
+        Return the team defence number
+        """
         return self.__defence
 
     @defence.setter
     def defence(self, value):
+        """
+        Set the team defence number
+
+        Raises:
+            ValueError: If the value is negative
+        """
         if value < 0:
             raise ValueError("Defence value is wrong.")
         self.__defence = value
 
     @property
     def rank(self):
+        """
+        Return the team ranking
+        """
         return self.__rank
 
     @rank.setter
     def rank(self, value):
+        """
+        Set the team ranking
+
+        Raises:
+            ValueError: If the value is negative
+        """
         if value < 0:
             raise ValueError("Rank value is wrong.")
         self.__rank = value
 
     @property
     def goal_difference(self):
+        """
+        Return the team goal difference
+        """
         return self.__goals_for - self.__goals_against
 
     def reset_status(self):
+        """
+        Reset the team data
+
+        team Goals, goals from opponenet, and points are reset to zero
+        """
         self.__goals_for = 0
         self.__goals_against = 0
         self.point = 0
 
     def simulate_match(self, opponent: "Team", is_knockout=False):
+        """
+        Simulate a football match against another team
+
+        In knockout mode we have extra time and penalty if needed
+
+        Args:
+            opponent: The opposing team
+            is_knockout: Whether the match is a knockout match
+
+        Returns:
+            tuple:
+                - goals scored by this team
+                - goals scored by the opponent
+                - the winning team or Draw in group matches
+
+        Raises:
+            ValueError: If is_knockout is not a boolean
+        """
         if not isinstance(is_knockout, bool):
             raise ValueError("is_knockout has to be boolean")
         self.pens = 0
@@ -185,7 +233,20 @@ class Team:
 
 
 class Match:
+    """
+    Represents a football match between two teams.
+
+    A match can be played in two ways: group match or a knockout match
+    """
     def __init__(self, team1: "Team", team2: "Team", is_knockout: bool):
+        """
+        Initialize a match
+
+        Args:
+            team1: the first team
+            team2: the second team
+            is_knockout: show that the match is a knockout match or not
+        """
         self.team1 = team1
         self.team2 = team2
         self.goals1 = 0
@@ -194,6 +255,11 @@ class Match:
         self.is_knockout = is_knockout
 
     def play(self):
+        """
+        Play the match and store the result
+
+        Updates the goals scored by each team and records the winner
+        """
         result = self.team1.simulate_match(self.team2, self.is_knockout)
         self.goals1 = result[0]
         self.goals2 = result[1]
@@ -207,11 +273,32 @@ class Match:
 
 
 class Group:
+    """
+    Represents a group of teams in the group game
+
+    the class can play for each team and save the winners
+    """
     def __init__(self, name: str, teams: list[Team]):
+        """
+        Initialize a group
+
+        Args:
+            name: the group name
+            teams: a list of teams in the group
+        """
         self.name = name
         self.teams = teams
 
     def play_all_matches(self):
+        """
+        simulate all matches between teams in the group
+
+        Every team plays once against every other team
+        Points:
+            - Win: 3 points
+            - Draw: 1 point
+            - Loss: 0 points
+        """
         for x_team in range(len(self.teams)-1):
             for y_team in range(x_team+1, len(self.teams)):
 
@@ -228,10 +315,27 @@ class Group:
                     self.teams[x_team].point += 3
 
     def get_ranking(self):
+        """
+        return the teams sorted by their group ranking
+
+        teams are ranked by these:
+            1. Point
+            2. Goal difference
+            3. Goals scored
+
+        Returns:
+            a list of teams sorted from highest to lowest rank
+        """
         group_result = sorted(self.teams, key=lambda t: (t.point, t.goal_difference, t.goals_for), reverse=True)
         return group_result
 
     def advance_teams(self):
+        """
+        return the top two teams in the group
+
+        Returns:
+            a tuple containing the first and second teams
+        """
         first_team = self.get_ranking()[0]
         second_team = self.get_ranking()[1]
         return first_team, second_team
@@ -244,19 +348,51 @@ class Group:
 
 
 class KnockoutStage:
+    """
+    represents a knockout stage
+
+    a knockout stage has multiple matches. the winners of each match go to the next round.
+    """
     def __init__(self, round_name: str, matches: list[Match]):
+        """
+        Initialize a knockout stage
+
+        Args:
+            round_name: the name of the knockout round ("Round of 16", "Quarter-finals", "Semi-finals", "Final")
+            matches: a list of matches in the round
+        """
         self.round_name = round_name
         self.matches = matches
 
     def play_round(self):
+        """
+        play all matches in the knockout stage
+
+        each match is simulated and save its result
+        """
         for match in self.matches:
             match.play()
 
     def get_winners(self):
+        """
+        return the winners of all matches in the round
+
+        Returns:
+            a list containing the winning teams
+        """
         winners_team_name: list[Team] = [match.winner for match in self.matches]
         return winners_team_name
 
     def display_results(self, verbose):
+        """
+        display the results of the knockout stage
+
+        if verbose is True, the score and winner of each match are
+        printed. For the final, the tournament champion is also shown.
+
+        Args:
+            verbose: option for printing or not
+        """
         if verbose:
             if self.round_name == "Final":
                 print(f"\n{self.round_name} winners:")
@@ -277,7 +413,20 @@ class KnockoutStage:
 
 
 class WorldCupSimulator:
+    """
+    simulates a complete World Cup
+
+    The simulator loads team data
+    group draw
+    simulates group and knockout matches
+    probabilities for winners in simulations and display the results
+    """
     def __init__(self):
+        """
+        initialize the World Cup simulator
+
+        creates empty list for teams, groups, and knockout
+        """
         self.file_flag = False
         self.group_game_flag = False
         self.teams: list[Team] = []
@@ -288,6 +437,17 @@ class WorldCupSimulator:
         self.final: KnockoutStage = None
 
     def load_teams_from_csv(self, file_name):
+        """
+        load team information from a CSV file
+
+        the CSV file must contain exactly 32 teams
+
+        Args:
+            file_name: path to the CSV file
+
+        Raises:
+            ValueError: if the file does not contain exactly 32 teams
+        """
         try:
             data = pd.read_csv(file_name).values
         except FileNotFoundError:
@@ -308,6 +468,12 @@ class WorldCupSimulator:
         self.file_flag = True
 
     def seed_and_draw_groups(self):
+        """
+        seed teams based on their rankings and randomly draw groups
+
+        Returns:
+            a dictionary mapping group names to their assigned teams.
+        """
         seed = {
             "seed_1": [],
             "seed_2": [],
@@ -352,6 +518,14 @@ class WorldCupSimulator:
         return group
 
     def run_group_stage(self, verbose=True):
+        """
+        simulate all group matches
+
+        teams are ranked according to points, goal difference and goals scored.
+
+        Args:
+            verbose: if True, prints the group result
+        """
         if not self.groups:
             print("[-] Error: Seed and Draw is empty - first press 2")
             return
@@ -369,6 +543,9 @@ class WorldCupSimulator:
         self.group_game_flag = True
 
     def setup_knockout_bracket(self):
+        """
+        create the Round of 16 knockout bracket
+        """
         all_matches = []
         bracket_r = []
         bracket_l = []
@@ -396,10 +573,13 @@ class WorldCupSimulator:
 
         self.round_of_16 = KnockoutStage("Round Of 16", all_matches)
 
-        return all_matches
-
     def run_knockout_bracket(self, verbose=True):
+        """
+        simulate the knockout stage
 
+        Args:
+            verbose: if True, prints the results of each round
+        """
         self.setup_knockout_bracket()
         self.round_of_16.play_round()
         self.round_of_16.display_results(verbose)
@@ -422,6 +602,12 @@ class WorldCupSimulator:
         self.final.display_results(verbose)
 
     def data_reset(self, seed):
+        """
+        Reset all data before a new simulation
+
+        Args:
+            seed: if False, generates a new group draw
+        """
         for team in self.teams:
             team.reset_status()
 
@@ -434,11 +620,20 @@ class WorldCupSimulator:
         self.final = None
 
     def run_full_simulation(self):
+        """
+        run a complete world cup simulation
+        """
         self.data_reset(self.group_game_flag)
         self.run_group_stage()
         self.run_knockout_bracket()
 
     def most_likely_champion(self, num_simulations=1000):
+        """
+        calculate each team probability for winning
+
+        Args:
+            num_simulations: number of simulations to run
+        """
         champions = {team.name: 0 for team in self.teams}
 
         for _ in range(num_simulations):
@@ -468,6 +663,13 @@ class WorldCupSimulator:
         self._plt_most_likely_champion(plt_bar_names, plt_bar_values)
 
     def _plt_most_likely_champion(self, names, values):
+        """
+        display a bar chart of championship probabilities
+
+        Args:
+            names: list of team names
+            values: list for championship percentages
+        """
         plt.figure(figsize=(12, 5))
 
         plt.title("World Cup Simulator", fontsize=18, fontweight='bold')
@@ -485,6 +687,9 @@ class WorldCupSimulator:
         plt.show()
 
     def display_bracket(self):
+        """
+        display the knockout bracket and results
+        """
         if self.round_of_16 is None:
             print("No bracket available.")
             return
@@ -531,7 +736,7 @@ def run_main():
 (5) simulate 1000
 (6) showing last bracket
 (7) exit\n""".title()
-
+    
     while True:
         print(txt)
         try:
