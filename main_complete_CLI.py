@@ -225,21 +225,27 @@ class KnockoutStage:
     def display_results(self, verbose):
         if verbose:
             if self.round_name == "Final":
-                print(f"{self.round_name} winner: {self.get_winners()[0].name}")
+                print(f"\n{self.round_name} winners:")
+                for match in self.matches:
+                    print(f"{match.team1.name:^15} {match.goals1} - {match.goals2} {match.team2.name:^15} | Winner: {match.winner.name}")
+                print(f"\n{self.round_name} winner: {self.get_winners()[0].name}")
+
             else:
                 print(f"\n{self.round_name} winners:")
-                print(" Chart 1 ".center(20, '-'))
+                print(" Table-1 ".center(50, '-'))
                 i = 0
-                for team_name in self.get_winners():
+                for match in self.matches:
                     if i == len(self.matches)//2:
-                        print(" Chart 2 ".center(20, '-'))
-                    print(f"{team_name.name:^20}")
+                        print()
+                        print(" Table-2 ".center(50, '-'))
+                    print(f"{match.team1.name:^15} {match.goals1} - {match.goals2} {match.team2.name:^15} | Winner: {match.winner.name}")
                     i += 1
 
 
 class WorldCupSimulator:
     def __init__(self):
-        self.group_game_num = 0
+        self.file_flag = False
+        self.group_game_flag = False
         self.teams: list[Team] = []
         self.groups: list[Group] = []
         self.round_of_16: KnockoutStage = None
@@ -248,7 +254,12 @@ class WorldCupSimulator:
         self.final: KnockoutStage = None
 
     def load_teams_from_csv(self, file_name):
-        data = pd.read_csv(file_name).values
+        try:
+            data = pd.read_csv(file_name).values
+        except FileNotFoundError:
+            print(f"[-] Error: {file_name} not found")
+            return
+
         self.teams.clear()
         for i in data:
             self.teams.append(Team(
@@ -259,6 +270,8 @@ class WorldCupSimulator:
             )
         if len(self.teams) != 32:
             raise ValueError("the number of rows must be 32 (data) + 1 (header)")
+        print(f"[+] file {file_name} loaded")
+        self.file_flag = True
 
     def seed_and_draw_groups(self):
         seed = {
@@ -306,7 +319,7 @@ class WorldCupSimulator:
 
     def run_group_stage(self, verbose=True):
         if not self.groups:
-            print("Seed and Draw empty - first press 2")
+            print("[-] Error: Seed and Draw is empty - first press 2")
             return
         for team in self.teams:
             team.reset_status()
@@ -319,7 +332,7 @@ class WorldCupSimulator:
                 for j in range(4):
                     print(f"{j+1}. {team_list[j].name:15}: {team_list[j].point:2} pts | {team_list[j].goal_difference:+2} GD | {team_list[j].goals_for:2} GF")
                 print()
-        self.group_game_num += 1
+        self.group_game_flag = True
 
     def setup_knockout_bracket(self):
         all_matches = []
@@ -388,7 +401,7 @@ class WorldCupSimulator:
         self.final = None
 
     def run_full_simulation(self):
-        self.data_reset(self.group_game_num != 0)
+        self.data_reset(self.group_game_flag)
         self.run_group_stage()
         self.run_knockout_bracket()
 
@@ -408,7 +421,7 @@ class WorldCupSimulator:
             else:
                 champions[champion.name] += 1
 
-        print("\nMost Likely Champions:\n")
+        print(f"\nResult of {num_simulations} simulation:\n")
 
         sorted_champions = sorted(
             champions.items(),
@@ -422,7 +435,7 @@ class WorldCupSimulator:
             percent = (wins / num_simulations) * 100
             plt_bar_names.append(team_name)
             plt_bar_values.append(percent)
-            print(f"{team_name:15} --> {percent:.2f}%")
+            print(f"|{team_name:^15} | {percent:^5.2f}%|")
         self._plt_most_likely_champion(plt_bar_names, plt_bar_values)
 
     def _plt_most_likely_champion(self, names, values):
@@ -447,6 +460,7 @@ class WorldCupSimulator:
         if self.round_of_16 is None:
             print("No bracket available.")
             return
+        
         print()
         print(" ROUND OF 16 ".center(40, '='))
 
@@ -481,7 +495,6 @@ class WorldCupSimulator:
 
 
 def run_main():
-    file_flag = False
     obj = WorldCupSimulator()
     txt = """\n(1) Import teams from csv file
 (2) seed and draw groups
@@ -504,13 +517,12 @@ def run_main():
             continue
 
         if num == 1:
+            obj.data_reset(True)
             file_path = "worldcup_2026_teams.csv"
             # file_path = askopenfilename(title="Select file:", filetypes=[("CSV Files", ".csv")])
             obj.load_teams_from_csv(file_path)
-            print(f"[+] file {file_path} loaded")
-            file_flag = True
         elif num in (2, 3, 4, 5, 6):
-            if not file_flag:
+            if not obj.file_flag:
                 print("[-] Error: First load the CSV file (option 1).")
                 continue
             if num == 2:
