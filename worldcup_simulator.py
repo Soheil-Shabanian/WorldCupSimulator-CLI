@@ -1,7 +1,7 @@
 # worldcup_simulator.py
 
-# Soheil Shabanian
-# 404130833
+# Student Name: Soheil Shabanian
+# Student Code: 404130833
 # Project name: World Cup Simulator
 # 1405/04/10
 
@@ -11,12 +11,23 @@ import pandas as pd
 import numpy as np
 from tkinter.filedialog import askopenfilename
 import matplotlib.pyplot as plt
-# import ctypes
-# ctypes.windll.shcore.SetProcessDpiAwareness(True)
+from rich.console import Console
+from rich.table import Table
+import ctypes
+ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
 
 class Team:
     def __init__(self, name: str, attack: int, defence: int, rank: int):
+        """
+        Initialize a new team.
+
+        Args:
+            name: Team name
+            attack: attack power (0-100)
+            defence: defence power (0-100)
+            rank: Team ranking value
+        """
         self.name = name
         self.__attack = attack
         self.__defence = defence
@@ -29,18 +40,33 @@ class Team:
 
     @property
     def goals_against(self):
+        """
+        Return the total number of goals from opponent
+        """
         return self.__goals_against
 
     @property
     def goals_for(self):
+        """
+        Return the total number of goals
+        """
         return self.__goals_for
 
     @property
     def attack(self):
+        """
+        Return the team attack rating
+        """
         return self.__attack
 
     @attack.setter
     def attack(self, value):
+        """
+        Set the team's attack rating
+
+        Raises:
+            ValueError: If the value is negative
+        """
         if value < 0:
             raise ValueError("Attack value is wrong.")
         self.__attack = value
@@ -87,7 +113,7 @@ class Team:
         goals_opponent = np.random.poisson(lam=lambda_opponent)
 
 
-        if not is_knockout: # group mode
+        if not is_knockout:
             if goals_self > goals_opponent:
                 winner = self
             elif goals_self < goals_opponent:
@@ -413,7 +439,7 @@ class WorldCupSimulator:
         self.run_knockout_bracket()
 
     def most_likely_champion(self, num_simulations=1000):
-        champions = {}
+        champions = {team.name: 0 for team in self.teams}
 
         for _ in range(num_simulations):
 
@@ -421,12 +447,8 @@ class WorldCupSimulator:
             self.run_group_stage(verbose=False)
             self.run_knockout_bracket(verbose=False)
 
-            champion = self.final.get_winners()[0]
-
-            if champion.name not in champions:
-                champions[champion.name] = 1
-            else:
-                champions[champion.name] += 1
+            final_winner = self.final.get_winners()[0]
+            champions[final_winner.name] += 1
 
         print(f"\nResult of {num_simulations} simulation:\n")
 
@@ -463,7 +485,6 @@ class WorldCupSimulator:
         plt.show()
 
     def display_bracket(self):
-
         if self.round_of_16 is None:
             print("No bracket available.")
             return
@@ -525,21 +546,28 @@ def run_main():
 
         if num == 1:
             obj.data_reset(True)
-            file_path = "worldcup_2026_teams.csv"
-            # file_path = askopenfilename(title="Select file:", filetypes=[("CSV Files", ".csv")])
+            # file_path = "worldcup_2026_teams.csv"
+            file_path = askopenfilename(title="Select file:", filetypes=[("CSV Files", ".csv")])
             obj.load_teams_from_csv(file_path)
         elif num in (2, 3, 4, 5, 6):
             if not obj.file_flag:
                 print("[-] Error: First load the CSV file (option 1).")
                 continue
+
             if num == 2:
                 result: dict = obj.seed_and_draw_groups()
-                for item in result:
-                    print(f"Group {item}: ", end='')
-                    for i in range(4):
-                        print(f"{result[item][i].name:^15} | ", end='')
-                    print()
-                    print(81*"-")
+                table = Table(title="Group Table")
+
+                table.add_column("Group", justify="center")
+                table.add_column("Team 1")
+                table.add_column("Team 2")
+                table.add_column("Team 3")
+                table.add_column("Team 4")
+
+                for i in result:
+                    table.add_row(i, result[i][0].name, result[i][1].name, result[i][2].name, result[i][3].name)
+
+                Console().print(table)
             elif num == 3:
                 obj.run_group_stage()
             elif num == 4:
