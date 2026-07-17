@@ -18,6 +18,7 @@ ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
 
 def match_result_printer(match: "Match"):
+    """print the result of a match with color"""
     if match.winner.name == match.team1.name:
         print(f"\033[38;2;0;255;0m{match.team1.name:^15} {match.goals1}\033[0m - {match.goals2} {match.team2.name:^15} | Winner: {match.winner.name}")
     else:
