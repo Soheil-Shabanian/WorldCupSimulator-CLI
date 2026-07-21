@@ -36,16 +36,16 @@ A command-line World Cup simulator with <strong>Python</strong>.
 
 ```text
 WorldCupSimulator-CLI/
-│
-├── worldcup.py
-├── group.py
-├── printer.py
-├── main.py
-├── match.py
-├── team.py
-├── knockoutstage.py
-├── README.md
-└── .gitignore
+    main.py
+    group.py
+    knockoutstage.py
+    match.py
+    printer.py
+    team.py
+    worldcup.py
+    
+    README.md
+    .gitignore
 ```
 
 ---
