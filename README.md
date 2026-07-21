@@ -1,23 +1,28 @@
 # World Cup Simulator (CLI)
 
-A command-line World Cup simulator written in **Python**.  
+A command-line World Cup simulator with **Python**.  
 ---
-
-(* ## 📸 Preview
-
-> <p align="center"><img src="images/menu." width="900"></p> *)
 
 ### Simulation
 
-![Simulation](images/fig_sim.png)
+<p align="center">
+  <img src="images/fig_sim.png" width="800">
+</p>
+<!-- ![Simulation](images/fig_sim.png) -->
 
 ### Group Stage
 
-![Groups](images/group.png)
+<p align="center">
+  <img src="images/group.png" width="450">
+</p>
+<!-- ![Groups](images/group.png) -->
 
 ### Knockout Stage
 
-![Knockout](images/knockout.png)
+<p align="center">
+  <img src="images/knockout.png" width="450">
+</p>
+<!-- ![Knockout](images/knockout.png) -->
 
 ---
 
@@ -64,8 +69,6 @@ cd WorldCupSimulator-CLI
 pip install -r requirements.txt
 ```
 
----
-
 ## 3- Run
 
 ```bash
@@ -74,17 +77,3 @@ python main.py
 
 ---
 
-## Technologies
-
-- Python 3
-- Object-Oriented Programming (OOP)
-- Random module
-- ANSI terminal colors
-
----
-
-## 👤 Author
-
-**Soheil Shabanian**
-
-GitHub: https://github.com/Soheil-Shabanian
