@@ -3,7 +3,7 @@
   <img src="https://img.shields.io/badge/NumPy-v2.4.6-175f91?style=flat-square&logo=numpy&logoColor=blue">
   <img src="https://img.shields.io/badge/Pandas-v3.0.3-10B981?style=flat-square&logo=pandas&logoColor=10B981">
   <img src="https://img.shields.io/badge/Matplotlib-v3.11.0-11557C?style=flat-square">
-  <img src="https://img.shields.io/badge/Rich-v15.0.0-FFB000?style=flat-square&logoColor=white">
+  <img src="https://img.shields.io/badge/Rich-v15.0.0-FFB000?style=flat-square&logoColor=yellow&logo=rich">
 </p>
 <h3 align="center">
 A command-line World Cup simulator with <strong>Python</strong>.  
